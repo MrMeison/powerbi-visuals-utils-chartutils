@@ -2,7 +2,7 @@
  *  Power BI Visualizations
  *
  *  Copyright (c) Microsoft Corporation
- *  All rights reserved. 
+ *  All rights reserved.
  *  MIT License
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -11,13 +11,13 @@
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is
  *  furnished to do so, subject to the following conditions:
- *   
- *  The above copyright notice and this permission notice shall be included in 
+ *
+ *  The above copyright notice and this permission notice shall be included in
  *  all copies or substantial portions of the Software.
- *   
- *  THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ *
+ *  THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
@@ -90,7 +90,7 @@ module powerbi.extensibility.utils.chart.legend {
         private svg: d3.Selection<any>;
         private group: d3.Selection<any>;
         private clearCatcher: d3.Selection<any>;
-        private element: JQuery;
+        private element: HTMLElement;
         private interactivityService: IInteractivityService;
         private legendDataStartIndex = 0;
         private arrowPosWindow = 1;
@@ -132,12 +132,12 @@ module powerbi.extensibility.utils.chart.legend {
         private static NavigationArrow: ClassAndSelector = createClassAndSelector("navArrow");
 
         constructor(
-            element: JQuery,
+            element: HTMLElement,
             legendPosition: LegendPosition,
             interactivityService: IInteractivityService,
             isScrollable: boolean) {
 
-            this.svg = d3.select(element.get(0))
+            this.svg = d3.select(element)
                 .append("svg")
                 .style("position", "absolute");
 
@@ -261,9 +261,12 @@ module powerbi.extensibility.utils.chart.legend {
             }
 
             // Adding back the workaround for Legend Left/Right position for Map
-            let mapControl = this.element.children(".mapControl");
-            if (mapControl.length > 0 && !this.isTopOrBottom(this.orientation)) {
-                mapControl.css("display", "inline-block");
+            let mapControls = this.element.getElementsByClassName("mapControl");
+            if (mapControls.length > 0 && !this.isTopOrBottom(this.orientation)) {
+                for (let i = 0; i < mapControls.length; ++i) {
+                    let element = <HTMLElement>mapControls[i];
+                    element.style.display = "inline-block";
+                }
             }
 
             this.calculateViewport();
@@ -687,7 +690,7 @@ module powerbi.extensibility.utils.chart.legend {
             // calculate the size of the space for both sides of the radius
             let iconTotalItemPadding = SVGLegend.LegendIconRadius * 2 + fontSizeMargin * 1.5;
             let numberOfItems: number = dataPoints.length;
-            // get the Y coordinate which is the middle of the container + the middle of the text height - the delta of the text 
+            // get the Y coordinate which is the middle of the container + the middle of the text height - the delta of the text
             let defaultTextProperties = SVGLegend.getTextProperties(false, "", this.data.fontSize);
             let verticalCenter = this.viewport.height / 2;
             let textYCoordinate = verticalCenter + textMeasurementService.estimateSvgTextHeight(defaultTextProperties) / 2
@@ -695,7 +698,7 @@ module powerbi.extensibility.utils.chart.legend {
 
             if (title) {
                 occupiedWidth += title.width;
-                // get the Y coordinate which is the middle of the container + the middle of the text height - the delta of the text 
+                // get the Y coordinate which is the middle of the container + the middle of the text height - the delta of the text
                 title.y = verticalCenter + title.height / 2 - textMeasurementService.estimateSvgTextBaselineDelta(SVGLegend.getTextProperties(true, title.text, this.data.fontSize));
             }
 
@@ -710,7 +713,7 @@ module powerbi.extensibility.utils.chart.legend {
             let legendItems = SVGLegend.calculateHorizontalLegendItemsWidths(dataPoints, availableWidth, iconTotalItemPadding, this.data.fontSize);
             numberOfItems = legendItems.length;
 
-            // If we can't show all the legend items, subtract the "next" arrow space from the available space and re-run the width calculations 
+            // If we can't show all the legend items, subtract the "next" arrow space from the available space and re-run the width calculations
             if (numberOfItems !== dataPointsLength) {
                 availableWidth -= SVGLegend.LegendArrowOffset;
                 legendItems = SVGLegend.calculateHorizontalLegendItemsWidths(dataPoints, availableWidth, iconTotalItemPadding, this.data.fontSize);

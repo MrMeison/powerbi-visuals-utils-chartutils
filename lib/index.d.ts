@@ -1,3 +1,4 @@
+/// <reference types="d3" />
 declare module powerbi.extensibility.utils.chart.axis.scale {
     const linear: string;
     const log: string;
@@ -260,9 +261,9 @@ declare module powerbi.extensibility.utils.chart.axis {
      * but no values are returned by the query.
      */
     const emptyDomain: number[];
-    const stackedAxisPadding: number;
-    function getRecommendedNumberOfTicksForXAxis(availableWidth: number): number;
-    function getRecommendedNumberOfTicksForYAxis(availableWidth: number): number;
+    const stackedAxisPadding = 5;
+    function getRecommendedNumberOfTicksForXAxis(availableWidth: number): 3 | 5 | 8;
+    function getRecommendedNumberOfTicksForYAxis(availableWidth: number): 3 | 5 | 8;
     /**
      * Get the best number of ticks based on minimum value, maximum value,
      * measure metadata and max tick count.
@@ -470,7 +471,7 @@ declare module powerbi.extensibility.utils.chart.legend.position {
 }
 declare module powerbi.extensibility.utils.chart.legend {
     import IInteractivityService = powerbi.extensibility.utils.interactivity.IInteractivityService;
-    function createLegend(legendParentElement: JQuery, interactive: boolean, interactivityService: IInteractivityService, isScrollable?: boolean, legendPosition?: LegendPosition): ILegend;
+    function createLegend(legendParentElement: HTMLElement, interactive: boolean, interactivityService: IInteractivityService, isScrollable?: boolean, legendPosition?: LegendPosition): ILegend;
     function isLeft(orientation: LegendPosition): boolean;
     function isTop(orientation: LegendPosition): boolean;
     function positionChartArea(chartArea: d3.Selection<any>, legend: ILegend): void;
@@ -493,7 +494,7 @@ declare module powerbi.extensibility.utils.chart.legend {
         private static legendItemMeasureClass;
         private legendContainerParent;
         private legendContainerDiv;
-        constructor(element: JQuery);
+        constructor(element: HTMLElement);
         getMargins(): IViewport;
         drawLegend(legendData: LegendData): void;
         reset(): void;
@@ -564,7 +565,7 @@ declare module powerbi.extensibility.utils.chart.legend {
         private static LegendIcon;
         private static LegendTitle;
         private static NavigationArrow;
-        constructor(element: JQuery, legendPosition: LegendPosition, interactivityService: IInteractivityService, isScrollable: boolean);
+        constructor(element: HTMLElement, legendPosition: LegendPosition, interactivityService: IInteractivityService, isScrollable: boolean);
         private updateLayout();
         private calculateViewport();
         getMargins(): IViewport;
@@ -838,7 +839,7 @@ declare module powerbi.extensibility.utils.chart.dataLabel {
         movingStep: number;
         hideOverlapped: boolean;
         private defaultDataLabelSettings;
-        defaultSettings: IDataLabelSettings;
+        readonly defaultSettings: IDataLabelSettings;
         /** Arranges the lables position and visibility*/
         hideCollidedLabels(viewport: IViewport, data: any[], layout: any, addTransform?: boolean): LabelEnabledDataPoint[];
         /**
@@ -922,12 +923,12 @@ declare module powerbi.extensibility.utils.chart.dataLabel.utils {
     const maxLabelWidth: number;
     const defaultLabelDensity: string;
     const DefaultDy: string;
-    const DefaultFontSizeInPt: number;
+    const DefaultFontSizeInPt = 9;
     const StandardFontFamily: string;
     const LabelTextProperties: TextProperties;
-    const defaultLabelColor: string;
-    const defaultInsideLabelColor: string;
-    const hundredPercentFormat: string;
+    const defaultLabelColor = "#777777";
+    const defaultInsideLabelColor = "#ffffff";
+    const hundredPercentFormat = "0.00 %;-0.00 %;0.00 %";
     const defaultLabelPrecision: number;
     function updateLabelSettingsFromLabelsObject(labelsObj: DataLabelObject, labelSettings: VisualDataLabelsSettings): void;
     function getDefaultLabelSettings(show?: boolean, labelColor?: string, fontSize?: number): VisualDataLabelsSettings;
