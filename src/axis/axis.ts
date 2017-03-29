@@ -45,13 +45,12 @@ module powerbi.extensibility.utils.chart.axis {
     import axisScale = powerbi.extensibility.utils.chart.axis.scale;
     import axisStyle = powerbi.extensibility.utils.chart.axis.style;
 
-    let XLabelMaxAllowedOverflow = 35;
-    let TextHeightConstant = 10;
-    let MinTickCount = 2;
-    let DefaultBestTickCount = 3;
-    let LeftPadding = 10;
-    let ScalarTickLabelPadding = 3;
-
+    const TextHeightConstant: number = 10;
+    const XLabelMaxAllowedOverflow: number = 35;
+    const MinTickCount: number = 2;
+    const DefaultBestTickCount: number = 3;
+    const LeftPadding: number = 10;
+    const ScalarTickLabelPadding: number = 3;
     const TickLabelPadding: number = 2;
     const MinOrdinalRectThickness: number = 20;
     const InnerPaddingRatio: number = 0.2;
@@ -60,11 +59,11 @@ module powerbi.extensibility.utils.chart.axis {
      * Default ranges are for when we have a field chosen for the axis,
      * but no values are returned by the query.
      */
-    export const emptyDomain = [0, 0];
+    export const emptyDomain: number[] = [0, 0];
 
-    export const stackedAxisPadding = 5;
+    export const stackedAxisPadding: number = 5;
 
-    export function getRecommendedNumberOfTicksForXAxis(availableWidth: number) {
+    export function getRecommendedNumberOfTicksForXAxis(availableWidth: number): 3 | 5 | 8 {
         if (availableWidth < 300) {
             return 3;
         }
@@ -76,7 +75,7 @@ module powerbi.extensibility.utils.chart.axis {
         return 8;
     }
 
-    export function getRecommendedNumberOfTicksForYAxis(availableWidth: number) {
+    export function getRecommendedNumberOfTicksForYAxis(availableWidth: number): 3 | 5 | 8 {
         if (availableWidth < 150) {
             return 3;
         }
@@ -131,58 +130,62 @@ module powerbi.extensibility.utils.chart.axis {
     }
 
     export function hasNonIntegerData(valuesMetadata: DataViewMetadataColumn[]): boolean {
-        for (let i = 0, len = valuesMetadata.length; i < len; i++) {
-            let currentMetadata: DataViewMetadataColumn = valuesMetadata[i];
-
+        for (const currentMetadata of valuesMetadata) {
             if (currentMetadata && currentMetadata.type && !currentMetadata.type.integer) {
                 return true;
             }
         }
-
         return false;
     }
 
-    export function getRecommendedTickValues(maxTicks: number,
+    export function getRecommendedTickValues(
+        maxTicks: number,
         scale: d3.scale.Linear<number, number> | d3.scale.Ordinal<any, any>,
         axisType: ValueType,
         isScalar: boolean,
-        minTickInterval?: number): any[] {
+        minTickInterval?: number): string[] | number[] {
 
         if (!isScalar || isOrdinalScale(scale)) {
-            return getRecommendedTickValuesForAnOrdinalRange(maxTicks, scale.domain() as any);
+            return getRecommendedTickValuesForAnOrdinalRange(maxTicks, scale.domain());
         }
         else if (isDateTime(axisType)) {
-            return getRecommendedTickValuesForADateTimeRange(maxTicks, (scale as d3.scale.Linear<number, number>).domain());
+            return getRecommendedTickValuesForADateTimeRange(maxTicks, (<d3.scale.Linear<number, number>>scale).domain());
         }
 
-        return getRecommendedTickValuesForAQuantitativeRange(maxTicks, (scale as d3.scale.Linear<number, number>), minTickInterval);
+        return getRecommendedTickValuesForAQuantitativeRange(maxTicks, <d3.scale.Linear<number, number>>scale, minTickInterval);
     }
 
     export function getRecommendedTickValuesForAnOrdinalRange(maxTicks: number, labels: string[]): string[] {
-        let tickLabels: string[] = [];
+        const tickLabels: string[] = [];
 
         // return no ticks in this case
-        if (maxTicks <= 0)
+        if (maxTicks <= 0) {
             return tickLabels;
+        }
 
-        let len = labels.length;
-        if (maxTicks > len)
+        const len: number = labels.length;
+        if (maxTicks > len) {
             return labels;
+        }
 
-        for (let i = 0, step = Math.ceil(len / maxTicks); i < len; i += step) {
+        const step: number = Math.ceil(len / maxTicks);
+        for (let i = 0; i < len; i += step) {
             tickLabels.push(labels[i]);
         }
         return tickLabels;
     }
 
-    export function getRecommendedTickValuesForAQuantitativeRange(maxTicks: number, scale: d3.scale.Linear<any, any>, minInterval?: number): number[] {
+    export function getRecommendedTickValuesForAQuantitativeRange(
+        maxTicks: number,
+        scale: d3.scale.Linear<any, any>,
+        minInterval?: number): number[] {
         let tickLabels: number[] = [];
 
         // if maxticks is zero return none
         if (maxTicks === 0)
             return tickLabels;
 
-        let quantitiveScale = <d3.scale.Linear<any, any>>scale;
+        const quantitiveScale: d3.scale.Linear<any, any> = scale;
         if (quantitiveScale.ticks) {
             tickLabels = quantitiveScale.ticks(maxTicks);
             if (tickLabels.length > maxTicks && maxTicks > 1)

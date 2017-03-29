@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "alwaysStrict": true,
         "emitDecoratorMetadata": false,
         "experimentalDecorators": false,
         "target": "ES5",
@@ -24,10 +25,10 @@
         "src/legend/legendData.ts",
         "src/legend/interactiveLegend.ts",
         "src/legend/svgLegend.ts",
-        "src/dataLabel/dataLabelInterfaces.ts",
-        "src/dataLabel/locationConverter.ts",
-        "src/dataLabel/dataLabelManager.ts",
-        "src/dataLabel/dataLabelArrangeGrid.ts",
-        "src/dataLabel/dataLabelUtils.ts"
+        "src/dataLabel/DataLabelInterfaces.ts",
+        "src/dataLabel/LocationConverter.ts",
+        "src/dataLabel/DataLabelManager.ts",
+        "src/dataLabel/DataLabelArrangeGrid.ts",
+        "src/dataLabel/DataLabelUtils.ts"
     ]
 }

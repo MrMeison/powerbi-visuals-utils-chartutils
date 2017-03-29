@@ -1,9 +1,17 @@
 {
+    "extends": [
+        "tslint-microsoft-contrib"
+    ],
     "rules": {
         "class-name": true,
         "comment-format": [
             true,
             "check-space"
+        ],
+        "missing-jsdoc": false,
+        "no-reference": false,
+        "interface-name": [
+            false
         ],
         "indent": [
             true,

@@ -33,7 +33,7 @@ module powerbi.extensibility.utils.chart.axis {
 
     // powerbi.extensibility.utils.type
     import ValueType = powerbi.extensibility.utils.type.ValueType;
-    import PrimitiveValue = powerbi.extensibility.utils.type.PrimitiveType;
+    import PrimitiveType = powerbi.extensibility.utils.type.PrimitiveType;
 
     export interface IMargin {
         top: number;
@@ -94,7 +94,8 @@ module powerbi.extensibility.utils.chart.axis {
          */
         xLabelMaxWidth?: number;
         /**
-         * (optional) The max width for each category tick label values. used for ellipsis truncation / label rotation. Used by hierarchy categories that have varying widths.
+         * (optional) The max width for each category tick label values. used for ellipsis truncation / label rotation.
+         * Used by hierarchy categories that have varying widths.
          */
         xLabelMaxWidths?: number[];
         /**
@@ -126,7 +127,8 @@ module powerbi.extensibility.utils.chart.axis {
          */
         hasDisallowedZeroInDomain?: boolean;
         /**
-         *(optional) The original data domain. Linear scales use .nice() to round to cleaner edge values. Keep the original data domain for later.
+         * (optional) The original data domain. Linear scales use .nice() to round to cleaner edge values.
+         * Keep the original data domain for later.
          */
         dataDomain?: number[];
         /**
@@ -149,7 +151,7 @@ module powerbi.extensibility.utils.chart.axis {
         placeholder: boolean;
     }
 
-    export type IStackedAxisValue = PrimitiveValue | IStackedAxisPlaceholder;
+    export type IStackedAxisValue = PrimitiveType | IStackedAxisPlaceholder;
 
     export interface IStackedAxisProperties extends IAxisProperties {
         /**
@@ -238,17 +240,30 @@ module powerbi.extensibility.utils.chart.axis {
          * (optional) The width/height of each category on the axis.
          */
         categoryThickness?: number;
-        /** (optional) the scale type of the axis. e.g. log, linear */
+        /**
+         * (optional) the scale type of the axis. e.g. log, linear
+         */
         scaleType?: string;
-        /** (optional) user selected display units */
+        /**
+         * (optional) user selected display units
+         */
         axisDisplayUnits?: number;
-        /** (optional) user selected precision */
+        /**
+         * (optional) user selected precision
+         */
         axisPrecision?: number;
-        /** (optional) for 100 percent stacked charts, causes formatString override and minTickInterval adjustments */
+        /**
+         * (optional) for 100 percent stacked charts, causes formatString override and minTickInterval adjustments
+         */
         is100Pct?: boolean;
-        /** (optional) sets clamping on the D3 scale, useful for drawing column chart rectangles as it simplifies the math during layout */
+        /**
+         * (optional) sets clamping on the D3 scale, useful for drawing column chart rectangles as it simplifies the math during layout
+         */
         shouldClamp?: boolean;
-        /** (optional) Disable "niceing" for numeric axis. It means that if max value is 172 the axis will show 172 but not rounded to upper value 180 */
+        /**
+         * (optional) Disable "niceing" for numeric axis.
+         * It means that if max value is 172 the axis will show 172 but not rounded to upper value 180
+         */
         disableNice?: boolean;
     }
 
@@ -266,7 +281,7 @@ module powerbi.extensibility.utils.chart.axis {
         innerTickSize?: number;
         outerTickSize?: number;
         orient?: AxisOrientation;
-        tickFormat: (datumIndex: number) => any;
+        tickFormat(datumIndex: number): any;
     }
 
     export interface CreateScaleResult {

@@ -42,15 +42,14 @@ module powerbi.extensibility.utils.chart.dataLabel {
      * Utility class to speed up the conflict detection by collecting the arranged items in the DataLabelsPanel.
      */
     export class DataLabelArrangeGrid {
-
+        private static ARRANGEGRID_MIN_COUNT: number = 1;
+        private static ARRANGEGRID_MAX_COUNT: number = 100;
         private grid: IArrangeGridElementInfo[][][] = [];
-        // size of a grid cell
         private cellSize: ISize;
         private rowCount: number;
         private colCount: number;
 
-        private static ARRANGEGRID_MIN_COUNT = 1;
-        private static ARRANGEGRID_MAX_COUNT = 100;
+
 
         /**
          * Creates new ArrangeGrid.
@@ -62,7 +61,7 @@ module powerbi.extensibility.utils.chart.dataLabel {
                 this.rowCount = this.colCount = 0;
             }
 
-            let baseProperties: TextProperties = {
+            const baseProperties: TextProperties = {
                 fontFamily: utils.LabelTextProperties.fontFamily,
                 fontSize: utils.LabelTextProperties.fontSize,
                 fontWeight: utils.LabelTextProperties.fontWeight,
@@ -70,13 +69,11 @@ module powerbi.extensibility.utils.chart.dataLabel {
 
             // sets the cell size to be twice of the Max with and Max height of the elements
             this.cellSize = { width: 0, height: 0 };
-            for (let i = 0, len = elements.length; i < len; i++) {
-                let child = elements[i];
-
+            for (const child of elements) {
                 // Fill label field
                 child.labeltext = layout.labelText(child);
 
-                let properties: TextProperties = Prototype.inherit(baseProperties);
+                const properties: TextProperties = Prototype.inherit(baseProperties);
                 properties.text = child.labeltext;
                 properties.fontSize = child.data
                     ? child.data.labelFontSize
@@ -89,8 +86,8 @@ module powerbi.extensibility.utils.chart.dataLabel {
                     height: textMeasurementService.estimateSvgTextHeight(properties),
                 };
 
-                let w = child.size.width * 2,
-                    h = child.size.height * 2;
+                const w: number = child.size.width * 2;
+                const h: number = child.size.height * 2;
 
                 if (w > this.cellSize.width) {
                     this.cellSize.width = w;
@@ -124,12 +121,12 @@ module powerbi.extensibility.utils.chart.dataLabel {
             this.cellSize.width = size.width / this.colCount;
             this.cellSize.height = size.height / this.rowCount;
 
-            let grid = this.grid;
+            const grid: IArrangeGridElementInfo[][][] = this.grid;
 
-            for (let x = 0; x < this.colCount; x++) {
+            for (let x: number = 0; x < this.colCount; x += 1) {
                 grid[x] = [];
 
-                for (let y = 0; y < this.rowCount; y++) {
+                for (let y: number = 0; y < this.rowCount; y += 1) {
                     grid[x][y] = [];
                 }
             }
@@ -141,8 +138,8 @@ module powerbi.extensibility.utils.chart.dataLabel {
          * @param rect The label element position rectangle.
          */
         public add(element: IDataLabelInfo, rect: IRect) {
-            let indexRect = this.getGridIndexRect(rect),
-                grid = this.grid;
+            const indexRect: IThickness = this.getGridIndexRect(rect);
+            const grid: IArrangeGridElementInfo[][][] = this.grid;
 
             for (let x = indexRect.left; x < indexRect.right; x++) {
                 for (let y = indexRect.top; y < indexRect.bottom; y++) {

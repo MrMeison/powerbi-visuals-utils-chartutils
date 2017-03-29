@@ -30,6 +30,6 @@ module powerbi.extensibility.utils.chart.axis {
         max?: T;
     }
 
-    /** Defines the acceptable values of a number. */
+    //  Defines the acceptable values of a number.
     export type NumberRange = ValueRange<number>;
 }

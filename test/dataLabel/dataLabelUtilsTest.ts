@@ -24,7 +24,7 @@
  *  THE SOFTWARE.
  */
 
-/// <reference path="../_references.ts" />
+/// <reference path="../references.ts" />
 
 module powerbi.extensibility.utils.chart.dataLabel.utils.test {
     // powerbi.extensibility.utils.type

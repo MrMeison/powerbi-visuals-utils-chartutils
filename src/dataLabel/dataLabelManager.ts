@@ -67,34 +67,37 @@ module powerbi.extensibility.utils.chart.dataLabel {
         }
 
         /** Arranges the lables position and visibility*/
-        public hideCollidedLabels(viewport: IViewport, data: any[], layout: any, addTransform: boolean = false): LabelEnabledDataPoint[] {
+        public hideCollidedLabels(
+            viewport: IViewport,
+            data: {}[],
+            layout: ILabelLayout,
+            addTransform: boolean = false): LabelEnabledDataPoint[] {
 
             // Split size into a grid
-            let arrangeGrid = new DataLabelArrangeGrid(viewport, data, layout);
-            let filteredData = [];
-            let transform: IVector = { x: 0, y: 0 };
+            const arrangeGrid: DataLabelArrangeGrid = new DataLabelArrangeGrid(viewport, data, layout);
+            const filteredData: {}[] = [];
+            const transform: IVector = { x: 0, y: 0 };
 
             if (addTransform) {
                 transform.x = viewport.width / 2;
                 transform.y = viewport.height / 2;
             }
 
-            for (let i = 0, len = data.length; i < len; i++) {
-
+            for (const item of data) {
                 // Filter unwanted data points
-                if (!layout.filter(data[i])) {
+                if (!layout.filter(item)) {
                     continue;
                 }
 
                 // Set default values where properties values are undefined
-                let info = this.getLabelInfo(data[i]);
+                const info: IDataLabelInfo = this.getLabelInfo(item);
 
                 info.anchorPoint = {
                     x: layout.labelLayout.x(data[i]) + transform.x,
-                    y: layout.labelLayout.y(data[i]) + transform.y,
+                    y: layout.labelLayout.y(data[i]) + transform.y
                 };
 
-                let position: IRect = this.calculateContentPosition(info, info.contentPosition, data[i].size, info.anchorMargin);
+                const position: IRect = this.calculateContentPosition(info, info.contentPosition, data[i].size, info.anchorMargin);
 
                 if (DataLabelManager.isValid(position) && !this.hasCollisions(arrangeGrid, info, position, viewport)) {
                     data[i].labelX = position.left - transform.x;
@@ -107,6 +110,10 @@ module powerbi.extensibility.utils.chart.dataLabel {
                     filteredData.push(data[i]);
                 }
             }
+            for (let i = 0; i < data.length; i++) {
+
+
+            }
 
             return filteredData;
         }
@@ -116,7 +123,7 @@ module powerbi.extensibility.utils.chart.dataLabel {
          * @param source The label info.
          */
         public getLabelInfo(source: IDataLabelInfo): IDataLabelInfo {
-            let settings = this.defaultDataLabelSettings;
+            const settings = this.defaultDataLabelSettings;
 
             source.anchorMargin = source.anchorMargin !== undefined
                 ? source.anchorMargin
@@ -159,7 +166,7 @@ module powerbi.extensibility.utils.chart.dataLabel {
         * (Private) Calculates element position using anchor point..
         */
         private calculateContentPositionFromPoint(anchorPoint: IPoint, contentPosition: ContentPositions, contentSize: ISize, offset: number): IRect {
-            let position: IPoint = { x: 0, y: 0 };
+            const position: IPoint = { x: 0, y: 0 };
 
             if (anchorPoint) {
                 if (anchorPoint.x !== undefined && isFinite(anchorPoint.x)) {
