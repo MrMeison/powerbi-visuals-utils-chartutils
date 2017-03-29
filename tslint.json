@@ -10,6 +10,7 @@
         ],
         "missing-jsdoc": false,
         "no-reference": false,
+        "function-name": false,
         "interface-name": [
             false
         ],

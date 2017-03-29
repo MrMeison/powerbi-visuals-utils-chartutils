@@ -222,6 +222,8 @@ module powerbi.extensibility.utils.chart.dataLabel {
      * None of the elements are mandatory, but at least anchorPoint OR anchorRect is needed.
      */
     export interface IDataLabelInfo extends IDataLabelSettings {
+        labelX?: number;
+        labelY?: number;
 
         /**
          * The point to which label is anchored.
@@ -332,7 +334,7 @@ module powerbi.extensibility.utils.chart.dataLabel {
         labelStyle?: boolean;
     }
 
-    export interface LabelEnabledDataPoint {
+    export interface LabelEnabledDataPoint extends IDataLabelInfo {
         // for collistion detection use
         labelX?: number;
         labelY?: number;

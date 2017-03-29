@@ -52,18 +52,18 @@ module powerbi.extensibility.utils.chart.dataLabel.utils {
     export const maxLabelWidth: number = 50;
     export const defaultLabelDensity: string = "50";
     export const DefaultDy: string = "-0.15em";
-    export const DefaultFontSizeInPt = 9;
+    export const DefaultFontSizeInPt: number = 9;
 
-    export const StandardFontFamily = font.Family.regular.css;
+    export const StandardFontFamily: string = font.Family.regular.css;
     export const LabelTextProperties: TextProperties = {
         fontFamily: font.Family.regularSecondary.css,
         fontSize: PixelConverter.fromPoint(DefaultFontSizeInPt),
-        fontWeight: "normal",
+        fontWeight: "normal"
     };
 
-    export const defaultLabelColor = "#777777";
-    export const defaultInsideLabelColor = "#ffffff";
-    export const hundredPercentFormat = "0.00 %;-0.00 %;0.00 %";
+    export const defaultLabelColor: string = "#777777";
+    export const defaultInsideLabelColor: string = "#ffffff";
+    export const hundredPercentFormat: string = "0.00 %;-0.00 %;0.00 %";
 
     export const defaultLabelPrecision: number = undefined;
     const defaultCountLabelPrecision: number = 0;
@@ -73,8 +73,8 @@ module powerbi.extensibility.utils.chart.dataLabel.utils {
     const labelsClass: ClassAndSelector = createClassAndSelector("data-labels");
     const lineClass: ClassAndSelector = createClassAndSelector("line-label");
 
-    const DimmedOpacity = 0.4;
-    const DefaultOpacity = 1.0;
+    const DimmedOpacity: number = 0.4;
+    const DefaultOpacity: number = 1.0;
 
     function getFillOpacity(selected: boolean, highlight: boolean, hasSelection: boolean, hasPartialHighlights: boolean): number {
         if ((hasPartialHighlights && !highlight) || (hasSelection && !selected)) {
@@ -138,7 +138,7 @@ module powerbi.extensibility.utils.chart.dataLabel.utils {
     }
 
     export function getDefaultColumnLabelSettings(isLabelPositionInside: boolean): VisualDataLabelsSettings {
-        let labelSettings = getDefaultLabelSettings(false, undefined);
+        const labelSettings: VisualDataLabelsSettings = getDefaultLabelSettings(false, undefined);
 
         labelSettings.position = null;
         labelSettings.labelColor = undefined;
@@ -168,8 +168,8 @@ module powerbi.extensibility.utils.chart.dataLabel.utils {
 
         if (format) {
             // Calculate precision from positive format by default
-            let positiveFormat = numberFormat.getComponents(format).positive,
-                formatMetadata = numberFormat.getCustomFormatMetadata(positiveFormat, true /*calculatePrecision*/);
+            const positiveFormat = numberFormat.getComponents(format).positive;
+            const formatMetadata = numberFormat.getCustomFormatMetadata(positiveFormat, true);
 
             if (formatMetadata.hasDots) {
                 return formatMetadata.precision;
@@ -180,14 +180,20 @@ module powerbi.extensibility.utils.chart.dataLabel.utils {
         return defaultCountLabelPrecision;
     }
 
-    export function drawDefaultLabelsForDataPointChart(data: any[], context: d3.Selection<any>, layout: ILabelLayout,
-        viewport: IViewport, isAnimator: boolean = false, animationDuration?: number, hasSelection?: boolean): d3.selection.Update<any> {
+    export function drawDefaultLabelsForDataPointChart(
+        data: any[],
+        context: d3.Selection<any>,
+        layout: ILabelLayout,
+        viewport: IViewport,
+        isAnimator: boolean = false,
+        animationDuration?: number,
+        hasSelection?: boolean): d3.selection.Update<any> {
 
         // Hide and reposition labels that overlap
-        let dataLabelManager = new DataLabelManager(),
-            filteredData = dataLabelManager.hideCollidedLabels(viewport, data, layout),
-            hasAnimation = isAnimator && !!animationDuration,
-            labels = selectLabels(filteredData, context, false, hasAnimation);
+        const dataLabelManager: DataLabelManager = new DataLabelManager();
+        const filteredData: LabelEnabledDataPoint[] = dataLabelManager.hideCollidedLabels(viewport, data, layout);
+        const hasAnimation: boolean = isAnimator && !!animationDuration;
+        const labels: d3.selection.Update<LabelEnabledDataPoint> = selectLabels(filteredData, context, false, hasAnimation);
 
         if (!labels) {
             return;
@@ -198,11 +204,13 @@ module powerbi.extensibility.utils.chart.dataLabel.utils {
                 .text((d: LabelEnabledDataPoint) => d.labeltext)
                 .transition()
                 .duration(animationDuration)
-                .style(layout.style as any)
-                .style("opacity", (hasSelection ? (d: SelectableDataPoint) => getFillOpacity(d.selected, false, hasSelection, false) : 1) as any)
+                .style(layout.style)
+                .style("opacity",
+                       (d: SelectableDataPoint): number =>
+                            hasSelection ? getFillOpacity(d.selected, false, hasSelection, false) : 1)
                 .attr({
-                    x: (d: LabelEnabledDataPoint) => d.labelX,
-                    y: (d: LabelEnabledDataPoint) => d.labelY
+                    x: (d: LabelEnabledDataPoint): number => d.labelX,
+                    y: (d: LabelEnabledDataPoint): number => d.labelY
                 });
 
             labels
@@ -216,7 +224,7 @@ module powerbi.extensibility.utils.chart.dataLabel.utils {
             labels
                 .attr({ x: (d: LabelEnabledDataPoint) => d.labelX, y: (d: LabelEnabledDataPoint) => d.labelY })
                 .text((d: LabelEnabledDataPoint) => d.labeltext)
-                .style(layout.style as any);
+                .style(layout.style);
 
             labels
                 .exit()
@@ -226,7 +234,11 @@ module powerbi.extensibility.utils.chart.dataLabel.utils {
         return labels;
     }
 
-    function selectLabels(filteredData: LabelEnabledDataPoint[], context: d3.Selection<any>, isDonut: boolean = false, forAnimation: boolean = false): d3.selection.Update<any> {
+    function selectLabels(
+        filteredData: LabelEnabledDataPoint[],
+        context: d3.Selection<any>,
+        isDonut: boolean = false,
+        forAnimation: boolean = false): d3.selection.Update<any> {
         // Check for a case where resizing leaves no labels - then we need to remove the labels "g"
         if (filteredData.length === 0) {
             cleanDataLabels(context, true);
@@ -237,7 +249,8 @@ module powerbi.extensibility.utils.chart.dataLabel.utils {
             context.append("g").classed(labelGraphicsContextClass.class, true);
         }
 
-        // line chart ViewModel has a special "key" property for point identification since the "identity" field is set to the series identity
+        // line chart ViewModel has a special "key" property for point identification
+        // since the "identity" field is set to the series identity
         let hasKey: boolean = (<any>filteredData)[0].key != null;
         let hasDataPointIdentity: boolean = (<any>filteredData)[0].identity != null;
         let getIdentifier = hasKey ?

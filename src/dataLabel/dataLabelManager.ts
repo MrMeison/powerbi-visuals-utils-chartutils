@@ -36,16 +36,15 @@ module powerbi.extensibility.utils.chart.dataLabel {
     import Double = powerbi.extensibility.utils.type.Double;
 
     /**
-    * Arranges label elements using the anchor point or rectangle. Collisions
-    * between elements can be automatically detected and as a result elements
-    * can be repositioned or get hidden.
-    */
+     * Arranges label elements using the anchor point or rectangle. Collisions
+     * between elements can be automatically detected and as a result elements
+     * can be repositioned or get hidden.
+     */
     export class DataLabelManager {
         public static DefaultAnchorMargin: number = 0; // For future use
         public static DefaultMaximumMovingDistance: number = 12;
         public static DefaultMinimumMovingDistance: number = 3;
         public static InflateAmount: number = 5;
-
         public movingStep: number = 3;
         public hideOverlapped: boolean = true;
 
@@ -66,10 +65,16 @@ module powerbi.extensibility.utils.chart.dataLabel {
             return this.defaultDataLabelSettings;
         }
 
-        /** Arranges the lables position and visibility*/
+        public static isValid(rect: IRect): boolean {
+            return !Rect.isEmpty(rect) && (rect.width > 0 && rect.height > 0);
+        }
+
+        /**
+         * Arranges the lables position and visibility
+         */
         public hideCollidedLabels(
             viewport: IViewport,
-            data: {}[],
+            data: IDataLabelInfo[],
             layout: ILabelLayout,
             addTransform: boolean = false): LabelEnabledDataPoint[] {
 
@@ -83,8 +88,8 @@ module powerbi.extensibility.utils.chart.dataLabel {
                 transform.y = viewport.height / 2;
             }
 
-            for (const item of data) {
-                // Filter unwanted data points
+            for (let i: number = 0; i < data.length; i += 1) {
+                const item: IDataLabelInfo = data[i];
                 if (!layout.filter(item)) {
                     continue;
                 }
@@ -93,25 +98,22 @@ module powerbi.extensibility.utils.chart.dataLabel {
                 const info: IDataLabelInfo = this.getLabelInfo(item);
 
                 info.anchorPoint = {
-                    x: layout.labelLayout.x(data[i]) + transform.x,
-                    y: layout.labelLayout.y(data[i]) + transform.y
+                    x: layout.labelLayout.x(item, i) + transform.x,
+                    y: layout.labelLayout.y(item, i) + transform.y
                 };
 
-                const position: IRect = this.calculateContentPosition(info, info.contentPosition, data[i].size, info.anchorMargin);
+                const position: IRect = this.calculateContentPosition(info, info.contentPosition, item.size, info.anchorMargin);
 
                 if (DataLabelManager.isValid(position) && !this.hasCollisions(arrangeGrid, info, position, viewport)) {
-                    data[i].labelX = position.left - transform.x;
-                    data[i].labelY = position.top - transform.y;
+                    item.labelX = position.left - transform.x;
+                    item.labelY = position.top - transform.y;
 
                     // Keep track of all panel elements positions.
                     arrangeGrid.add(info, position);
 
                     // Save all data points to display
-                    filteredData.push(data[i]);
+                    filteredData.push(item);
                 }
-            }
-            for (let i = 0; i < data.length; i++) {
-
 
             }
 
@@ -123,7 +125,7 @@ module powerbi.extensibility.utils.chart.dataLabel {
          * @param source The label info.
          */
         public getLabelInfo(source: IDataLabelInfo): IDataLabelInfo {
-            const settings = this.defaultDataLabelSettings;
+            const settings: IDataLabelInfo = this.defaultDataLabelSettings;
 
             source.anchorMargin = source.anchorMargin !== undefined
                 ? source.anchorMargin
@@ -163,9 +165,14 @@ module powerbi.extensibility.utils.chart.dataLabel {
         }
 
         /**
-        * (Private) Calculates element position using anchor point..
-        */
-        private calculateContentPositionFromPoint(anchorPoint: IPoint, contentPosition: ContentPositions, contentSize: ISize, offset: number): IRect {
+         * (Private) Calculates element position using anchor point..
+         */
+        // tslint:disable-next-line:cyclomatic-complexity
+        private calculateContentPositionFromPoint(
+            anchorPoint: IPoint,
+            contentPosition: ContentPositions,
+            contentSize: ISize,
+            offset: number): IRect {
             const position: IPoint = { x: 0, y: 0 };
 
             if (anchorPoint) {
@@ -186,6 +193,7 @@ module powerbi.extensibility.utils.chart.dataLabel {
                         case ContentPositions.BottomRight:
                             position.x += contentSize.width / 2.0;
                             break;
+                        default: break;
                     }
                 }
 
@@ -202,6 +210,7 @@ module powerbi.extensibility.utils.chart.dataLabel {
                         case ContentPositions.TopCenter:
                             position.y -= contentSize.height;
                             break;
+                        default: break;
                     }
                 }
 
@@ -238,6 +247,7 @@ module powerbi.extensibility.utils.chart.dataLabel {
                             position.x += offset;
                             position.y += offset;
                             break;
+                        default: break;
                     }
                 }
             }
@@ -249,8 +259,15 @@ module powerbi.extensibility.utils.chart.dataLabel {
             };
         }
 
-        /** (Private) Calculates element position using anchor rect. */
-        private calculateContentPositionFromRect(anchorRect: IRect, anchorRectOrientation: RectOrientation, contentPosition: ContentPositions, contentSize: ISize, offset: number): IRect {
+        /**
+         * (Private) Calculates element position using anchor rect.
+         */
+        private calculateContentPositionFromRect(
+            anchorRect: IRect,
+            anchorRectOrientation: RectOrientation,
+            contentPosition: ContentPositions,
+            contentSize: ISize,
+            offset: number): IRect {
             switch (contentPosition) {
                 case ContentPositions.InsideCenter:
                     return this.handleInsideCenterPosition(anchorRectOrientation, contentSize, anchorRect, offset);
@@ -262,13 +279,18 @@ module powerbi.extensibility.utils.chart.dataLabel {
                     return this.handleOutsideEndPosition(anchorRectOrientation, contentSize, anchorRect, offset);
                 case ContentPositions.OutsideBase:
                     return this.handleOutsideBasePosition(anchorRectOrientation, contentSize, anchorRect, offset);
+                default: return { left: 0, top: 0, width: -1, height: -1 };
             }
-
-            return { left: 0, top: 0, width: -1, height: -1 };
         }
 
-        /** (Private) Calculates element inside center position using anchor rect. */
-        private handleInsideCenterPosition(anchorRectOrientation: RectOrientation, contentSize: ISize, anchorRect: IRect, offset: number): IRect {
+        /**
+         * (Private) Calculates element inside center position using anchor rect.
+         */
+        private handleInsideCenterPosition(
+            anchorRectOrientation: RectOrientation,
+            contentSize: ISize,
+            anchorRect: IRect,
+            offset: number): IRect {
             switch (anchorRectOrientation) {
                 case RectOrientation.VerticalBottomTop:
                 case RectOrientation.VerticalTopBottom:
@@ -280,8 +302,14 @@ module powerbi.extensibility.utils.chart.dataLabel {
             }
         }
 
-        /** (Private) Calculates element inside end position using anchor rect. */
-        private handleInsideEndPosition(anchorRectOrientation: RectOrientation, contentSize: ISize, anchorRect: IRect, offset: number): IRect {
+        /**
+         * (Private) Calculates element inside end position using anchor rect.
+         */
+        private handleInsideEndPosition(
+            anchorRectOrientation: RectOrientation,
+            contentSize: ISize,
+            anchorRect: IRect,
+            offset: number): IRect {
             switch (anchorRectOrientation) {
                 case RectOrientation.VerticalBottomTop:
                     return locationConverter.topInside(contentSize, anchorRect, offset);
@@ -295,8 +323,14 @@ module powerbi.extensibility.utils.chart.dataLabel {
             }
         }
 
-        /** (Private) Calculates element inside base position using anchor rect. */
-        private handleInsideBasePosition(anchorRectOrientation: RectOrientation, contentSize: ISize, anchorRect: IRect, offset: number): IRect {
+        /**
+         * (Private) Calculates element inside base position using anchor rect.
+         */
+        private handleInsideBasePosition(
+            anchorRectOrientation: RectOrientation,
+            contentSize: ISize,
+            anchorRect: IRect,
+            offset: number): IRect {
             switch (anchorRectOrientation) {
                 case RectOrientation.VerticalBottomTop:
                     return locationConverter.bottomInside(contentSize, anchorRect, offset);
@@ -310,8 +344,14 @@ module powerbi.extensibility.utils.chart.dataLabel {
             }
         }
 
-        /** (Private) Calculates element outside end position using anchor rect. */
-        private handleOutsideEndPosition(anchorRectOrientation: RectOrientation, contentSize: ISize, anchorRect: IRect, offset: number): IRect {
+        /**
+         * (Private) Calculates element outside end position using anchor rect.
+         */
+        private handleOutsideEndPosition(
+            anchorRectOrientation: RectOrientation,
+            contentSize: ISize,
+            anchorRect: IRect,
+            offset: number): IRect {
             switch (anchorRectOrientation) {
                 case RectOrientation.VerticalBottomTop:
                     return locationConverter.topOutside(contentSize, anchorRect, offset);
@@ -325,8 +365,14 @@ module powerbi.extensibility.utils.chart.dataLabel {
             }
         }
 
-        /** (Private) Calculates element outside base position using anchor rect. */
-        private handleOutsideBasePosition(anchorRectOrientation: RectOrientation, contentSize: ISize, anchorRect: IRect, offset: number): IRect {
+        /**
+         * (Private) Calculates element outside base position using anchor rect.
+         */
+        private handleOutsideBasePosition(
+            anchorRectOrientation: RectOrientation,
+            contentSize: ISize,
+            anchorRect: IRect,
+            offset: number): IRect {
             switch (anchorRectOrientation) {
                 case RectOrientation.VerticalBottomTop:
                     return locationConverter.bottomOutside(contentSize, anchorRect, offset);
@@ -340,8 +386,14 @@ module powerbi.extensibility.utils.chart.dataLabel {
             }
         }
 
-        /**  (Private) Calculates element position. */
-        private calculateContentPosition(anchoredElementInfo: IDataLabelInfo, contentPosition: ContentPositions, contentSize: ISize, offset: number): IRect {
+        /**
+         * (Private) Calculates element position.
+         */
+        private calculateContentPosition(
+            anchoredElementInfo: IDataLabelInfo,
+            contentPosition: ContentPositions,
+            contentSize: ISize,
+            offset: number): IRect {
 
             if (contentPosition !== ContentPositions.InsideEnd &&
                 contentPosition !== ContentPositions.InsideCenter &&
@@ -365,15 +417,20 @@ module powerbi.extensibility.utils.chart.dataLabel {
                 offset);
         }
 
-        /** (Private) Check for collisions. */
+        /**
+         * (Private) Check for collisions.
+         */
         private hasCollisions(arrangeGrid: DataLabelArrangeGrid, info: IDataLabelInfo, position: IRect, size: ISize): boolean {
             if (arrangeGrid.hasConflict(position)) {
                 return true;
             }
 
             // Since we divide the height by 2 we add it back to the top of the view port so labels won't be cut off
-            let intersection = { left: 0, top: position.height / 2, width: size.width, height: size.height };
-            intersection = Rect.inflate(intersection, { left: DataLabelManager.InflateAmount, top: 0, right: DataLabelManager.InflateAmount, bottom: 0 });
+            let intersection: IRect = { left: 0, top: position.height / 2, width: size.width, height: size.height };
+            intersection = Rect.inflate(
+                intersection,
+                { left: DataLabelManager.InflateAmount, top: 0, right: DataLabelManager.InflateAmount, bottom: 0 }
+            );
 
             intersection = Rect.intersect(intersection, position);
 
@@ -392,12 +449,8 @@ module powerbi.extensibility.utils.chart.dataLabel {
                 case OutsidePlacement.Partial:
                     return Double.lessWithPrecision(intersection.width, position.width / 2) ||
                         Double.lessWithPrecision(intersection.height, position.height / 4);
+                default: return false;
             }
-            return false;
-        }
-
-        public static isValid(rect: IRect): boolean {
-            return !Rect.isEmpty(rect) && (rect.width > 0 && rect.height > 0);
         }
     }
 }

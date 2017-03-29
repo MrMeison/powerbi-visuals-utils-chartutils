@@ -49,8 +49,6 @@ module powerbi.extensibility.utils.chart.dataLabel {
         private rowCount: number;
         private colCount: number;
 
-
-
         /**
          * Creates new ArrangeGrid.
          * @param size The available size
@@ -64,7 +62,7 @@ module powerbi.extensibility.utils.chart.dataLabel {
             const baseProperties: TextProperties = {
                 fontFamily: utils.LabelTextProperties.fontFamily,
                 fontSize: utils.LabelTextProperties.fontSize,
-                fontWeight: utils.LabelTextProperties.fontWeight,
+                fontWeight: utils.LabelTextProperties.fontWeight
             };
 
             // sets the cell size to be twice of the Max with and Max height of the elements
@@ -83,7 +81,7 @@ module powerbi.extensibility.utils.chart.dataLabel {
 
                 child.size = {
                     width: textMeasurementService.measureSvgTextWidth(properties),
-                    height: textMeasurementService.estimateSvgTextHeight(properties),
+                    height: textMeasurementService.estimateSvgTextHeight(properties)
                 };
 
                 const w: number = child.size.width * 2;
@@ -137,12 +135,12 @@ module powerbi.extensibility.utils.chart.dataLabel {
          * @param element The label element to register.
          * @param rect The label element position rectangle.
          */
-        public add(element: IDataLabelInfo, rect: IRect) {
+        public add(element: IDataLabelInfo, rect: IRect): void {
             const indexRect: IThickness = this.getGridIndexRect(rect);
             const grid: IArrangeGridElementInfo[][][] = this.grid;
 
-            for (let x = indexRect.left; x < indexRect.right; x++) {
-                for (let y = indexRect.top; y < indexRect.bottom; y++) {
+            for (let x: number = indexRect.left; x < indexRect.right; x += 1) {
+                for (let y: number = indexRect.top; y < indexRect.bottom; y += 1) {
                     grid[x][y].push({ element: element, rect: rect });
                 }
             }
@@ -154,15 +152,14 @@ module powerbi.extensibility.utils.chart.dataLabel {
          * @return True if conflict is detected.
          */
         public hasConflict(rect: IRect): boolean {
-            let indexRect = this.getGridIndexRect(rect),
-                grid = this.grid,
-                isIntersecting = Rect.isIntersecting;
+            const indexRect: IThickness = this.getGridIndexRect(rect);
+            const grid: IArrangeGridElementInfo[][][] = this.grid;
 
-            for (let x = indexRect.left; x < indexRect.right; x++) {
-                for (let y = indexRect.top; y < indexRect.bottom; y++) {
-                    for (let z = 0; z < grid[x][y].length; z++) {
-                        let item = grid[x][y][z];
-                        if (isIntersecting(item.rect, rect)) {
+            for (let x: number = indexRect.left; x < indexRect.right; x += 1) {
+                for (let y: number = indexRect.top; y < indexRect.bottom; y += 1) {
+                    for (let z: number = 0; z < grid[x][y].length; z += 1) {
+                        const item: IArrangeGridElementInfo = grid[x][y][z];
+                        if (Rect.isIntersecting(item.rect, rect)) {
                             return true;
                         }
                     }
@@ -190,7 +187,8 @@ module powerbi.extensibility.utils.chart.dataLabel {
          * @return grid index as a thickness object.
          */
         private getGridIndexRect(rect: IRect): IThickness {
-            let restrict = (n, min, max) => Math.min(Math.max(n, min), max);
+            const restrict: (n: number, min: number, max: number) => number =
+                (n: number, min: number, max: number): number => Math.min(Math.max(n, min), max);
 
             return {
                 left: restrict(Math.floor(rect.left / this.cellSize.width), 0, this.colCount),
